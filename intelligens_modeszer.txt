@@ -1,0 +1,356 @@
+#montecarlo
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def monte_carlo(f, x0, x1, N):
+    x = np.arange(x0, x1, 0.001)
+    y = f(x)
+    f_max = max(y) * 2
+    f_min = min(y)
+    x_rand = x0 + np.random.random(N) * (x1 - x0)
+    y_rand = f_min + np.random.random(N) * f_max
+    ind_below = np.where(y_rand < f(x_rand))
+    ind_above = np.where(y_rand >= f(x_rand))
+    plt.plot(x, y, color="red")
+    plt.scatter(x_rand[ind_below], y_rand[ind_below], color="green")
+    plt.scatter(x_rand[ind_above], y_rand[ind_above], color="blue")
+
+    print("Fgv feletti pontok:", len(ind_above[0]))
+    print("Fgv alatti pontok:", len(ind_below[0]))
+    print("Teljes terület:", f_max * (x1 - x0))
+    print("Fgv alatti terület:", f_max * (x1 - x0) * len(ind_below[0]) / N)
+
+def f1(x):
+    return np.sqrt(np.abs(1 - pow(x, 2)))
+
+def f2(x):
+    return np.sin(x)
+
+monte_carlo(f1, -5, 5, 10000)
+
+#kockadobas
+
+import random
+import numpy as np
+from matplotlib import pyplot as plt
+
+N = 2000
+kockak = []
+kocka = [0] * 6
+for i in range(1, N + 1):
+    r = random.randint(0, 5)
+    kocka[r] += 1
+    kockak.append(np.array(kocka) / i)
+
+kockak = np.array(kockak)
+
+plt.figure(figsize=(15, 5))
+plt.plot(kockak)
+plt.show()
+
+#Pi kozelites
+
+import random
+import matplotlib.pyplot as plt
+
+N = 10000
+k = 0
+circlepoints = []
+squarepoints = []
+for _ in range(N):
+    x = random.random() * 2
+    y = random.random() * 2
+    if (x - 1) ** 2 + (y - 1) ** 2 <= 1:
+        k += 1
+        circlepoints.append([x, y])
+    else:
+        squarepoints.append([x, y])
+
+pi_approx = 4 * k / N
+print("Pi közelítése:", pi_approx)
+
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+ax.scatter(*zip(*squarepoints), s=1, color='blue')
+ax.scatter(*zip(*circlepoints), s=1, color='red')
+ax.set_xlim([0, 2])
+ax.set_ylim([0, 2])
+plt.show()
+
+#3d veletlen bolyongas
+
+%matplotlib inline
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+N = 1500
+R = (np.random.rand(N)*6).astype("int")
+x = np.zeros(N)
+y = np.zeros(N)
+z = np.zeros(N)
+x[ R==0 ] = -1; x[ R==1 ] = 1
+y[ R==2 ] = -1.05; y[ R==3 ] = 0
+z[ R==4 ] = -1; z[ R==5 ] = 1
+x = np.cumsum(x)[::-1]  # bolyongás lefelé tartása
+y = np.cumsum(y)[::-1]
+z = np.cumsum(z)[::-1]
+
+plt.figure()
+ax = plt.subplot(1,1,1, projection='3d')
+ax.plot(x, y, z, alpha=0.9)
+ax.scatter(x[-1], y[-1], z[-1])
+plt.show()
+
+#grafelmelet
+
+import networkx as nx
+import random as rd
+import matplotlib.pyplot as plt
+
+N = 100
+
+D = nx.DiGraph()
+for i in range(1, N + 1):
+    D.add_node(i)
+
+for i in range(1, N + 1):
+    D.add_edge(rd.randint(1, N), rd.randint(1, N))
+
+nx.draw(D, with_labels=True)
+plt.show()
+
+print(nx.is_strongly_connected(D))
+
+try:
+    shortest_path = nx.shortest_path(D, source=1, target=N)
+    print(f"Legrövidebb út a 1 és a {N} csúcs között: {shortest_path}")
+except nx.NetworkXNoPath:
+    print(f"Nincs út a 1 és {N} csúcs között")
+
+# fuzzy logikak
+
+import math as m
+A = 0.3
+B = 0.6
+
+#gödel-fele logika
+
+def g_imp(A,B):
+  if (abs(A)<=abs(B)):
+    return 1
+  return abs(B)
+
+print(g_imp(A,B))
+
+def g_or(A,B):
+    return max(A,B)
+
+print(g_or(A,B))
+
+def g_and(A,B):
+    return min(A,B)
+
+print(g_and(A,B))
+
+def g_neg(A):
+  if (abs(A) == 0):
+    return 1
+  return 0
+
+print(g_neg(A))
+
+#lukasiewicz-fele logika
+
+def l_imp(A,B):
+    return min(1,1-abs(A)+abs(B))
+
+print(l_imp(A,B))
+
+def l_or(A,B):
+    return max(abs(A),abs(B))
+
+print(l_or(A,B))
+
+def l_and(A,B):
+    return min(abs(A),abs(B))
+
+print(l_and(A,B))
+
+def l_neg(A):
+    return 1-abs(A)
+
+print(l_neg(A))
+
+#szorzat logika
+
+def p_imp(A,B):
+  if (abs(A) <= abs(B)):
+    return 1
+  return abs(B)/abs(A)
+
+print(p_imp(A,B))
+
+def p_or(A,B):
+    return abs(A)+abs(B)-abs(A)*abs(B)
+
+print(p_or(A,B))
+
+def p_and(A,B):
+    return abs(A)*abs(B)
+
+print(p_and(A,B))
+
+def p_neg(A):
+    return 1-abs(A)
+
+print(p_neg(A))
+
+#logikai szabalyok
+
+#lancszabaly
+print(g_or(g_imp(A,B),g_imp(B,A)) == 1)
+#demorgan
+print(g_neg(g_or(A,B)) == g_and(g_neg(A),g_neg(B)))
+print(g_neg(g_and(A,B)) == g_or(g_neg(A),g_neg(B)))
+#logikak osszehasonlitasa
+H = 0.6
+Sz = 0.9
+D = 0.8
+
+print("Gödel:")
+print(g_or(g_imp(g_neg(Sz),g_neg(H)),D))
+print(g_imp(g_and(H,g_neg(D)),Sz))
+print(g_or(g_or(Sz,g_neg(H)),D))
+print("Łukasiewicz:")
+print(l_or(l_imp(l_neg(Sz),l_neg(H)),D))
+print(l_imp(l_and(H,l_neg(D)),Sz))
+print(l_or(l_or(Sz,l_neg(H)),D))
+print("Szorzat:")
+print(p_or(p_imp(p_neg(Sz),p_neg(H)),D))
+print(p_imp(p_and(H,p_neg(D)),Sz))
+print(p_or(p_or(Sz,p_neg(H)),D))
+
+#fuzzy lift vezerles
+
+floor = 7
+distance = 3
+speed = 8
+
+floor_lo = max(0, min((5-floor)/4, (floor-1)/4))
+floor_md = max(0, min((floor-1)/4, min((9-floor)/2, (floor-5)/2)))
+floor_hi = max(0, min((floor-5)/2, (10-floor)/2))
+
+distance_lo = max(0, min((5-distance)/4, (distance-1)/4))
+distance_md = max(0, min((distance-1)/4, min((9-distance)/2, (distance-5)/2)))
+distance_hi = max(0, min((distance-5)/2, (10-distance)/2))
+
+speed_lo = max(0, min((5-speed)/4, (speed-1)/4))
+speed_md = max(0, min((speed-1)/4, min((9-speed)/2, (speed-5)/2)))
+speed_hi = max(0, min((speed-5)/2, (10-speed)/2))
+
+decision_lo = max(0, min(-distance/2 + floor, -speed/2 + floor))
+decision_md = max(0, min(min(distance/2, speed/2) + floor, 2*floor))
+decision_hi = max(0, min(min(distance/2, speed/2) + floor - 2, 2*(floor-1)))
+
+numerator = decision_lo*2 + decision_md*5 + decision_hi*8
+denominator = decision_lo + decision_md + decision_hi
+decision = numerator/denominator
+
+print("A lift döntése:", decision)
+
+#ajanlorendszer
+
+import pandas as pd
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+with open('adatok.csv', 'w') as f:
+    f.write('user_id,item_id,rating,title\n')
+    f.write('1,1,5,The Shawshank Redemption\n')
+    f.write('1,2,4,The Godfather\n')
+    f.write('1,3,4,The Dark Knight\n')
+    f.write('2,1,3,The Shawshank Redemption\n')
+    f.write('2,2,5,The Godfather\n')
+    f.write('2,3,4,The Dark Knight\n')
+    f.write('3,1,5,The Shawshank Redemption\n')
+    f.write('3,2,4,The Godfather\n')
+    f.write('3,3,5,The Dark Knight\n')
+
+headers = ['user_id', 'item_id', 'rating', 'title']
+
+data = pd.read_csv('adatok.csv', names=headers, skiprows=[0])
+data['user_id'] = data['user_id'].astype(int)
+data['item_id'] = data['item_id'].astype(int)
+data['rating'] = data['rating'].astype(float)
+data['title'] = data['title'].astype(str)
+
+num_users = data['user_id'].nunique()
+num_items = data['item_id'].nunique()
+
+ratings = np.zeros((num_users, num_items))
+for row in data.itertuples():
+    ratings[row[1]-1, row[2]-1] = row[3]
+
+item_similarity = cosine_similarity(ratings.T)
+
+def get_recommendations(user_id, ratings, item_similarity, data):
+    user_ratings = ratings[user_id-1,:]
+    similarity_scores = item_similarity.dot(user_ratings)
+    ranked_indices = similarity_scores.argsort()[::-1]
+    recommended_indices = [i for i in ranked_indices if user_ratings[i] == 0 and data.iloc[i]['title'] not in user_ratings.index][:num_recommendations]
+    return recommended_indices
+
+user_id = 1
+user_ratings = data[data['user_id'] == user_id]
+user_ratings_sorted = user_ratings.sort_values('rating', ascending=False)
+recommended_items = user_ratings_sorted['title'].head(3)
+
+print(recommended_items)
+
+#klasszifikacio es regresszio svm
+
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+iris = datasets.load_iris()
+
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+svm = SVC(kernel='linear', C=1)
+svm.fit(X_train, y_train)
+
+y_pred = svm.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print("Pontosság:", accuracy)
+
+#knn
+
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+iris = datasets.load_iris()
+
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_train, y_train)
+
+y_pred = knn.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print("Osztályozás pontossága:", accuracy)
+
+#
